@@ -25,7 +25,7 @@ for oneGroup in np.arange(head['NGROUP'] - 1):
         imgHDU = fits.PrimaryHDU(diff,head)
         HDUList = fits.HDUList([imgHDU])
         fitsName = baseName + "_int_{:03d}_{:03d}.fits".format(oneGroup+1,oneGroup)
-        imgHDU.header["ON_INT"] = (oneGroup, "Which integration is the subtrahend")
+        imgHDU.header["ON_NINT"] = (oneGroup, "Which integration is the subtrahend")
         imgHDU.header["INT_NEXT"] = (oneGroup+1, "Which integration is the minuend")
         outPath = os.path.join(pairWiseDir,fitsName)
         HDUList.writeto(outPath,overwrite=overWrite)
