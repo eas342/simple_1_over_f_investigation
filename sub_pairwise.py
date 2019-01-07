@@ -6,7 +6,11 @@ import sys
 from sys import argv
 
 if len(argv) >= 2:
-    if argv[1] == 'red':
+    if argv[1] == 'redNoSide':
+        print("Making subtrative pairs from reduced data w/ no side reference correction")
+        fullDir = '/data1/tso_analysis/otis_long_dark/proc2/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red.fits'
+        pairWiseDir = 'pairwise_sub_red_no_side_refcor'
+    elif argv[1] == 'red':
         print("Making subtractive pairs from reduced data...")
         fullDir = '/data1/tso_analysis/otis_long_dark/proc/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red.fits'
         pairWiseDir = 'pairwise_sub_red'
