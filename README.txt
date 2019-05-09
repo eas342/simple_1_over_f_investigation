@@ -17,16 +17,15 @@ pairwise_sub - the pairwise subtracted 54 pairs from the raw ALONG (A5) data. No
 pairwise_sub_A3 - the pairwise subtracted 54 frames from the raw A3 data. No reference pixel or other NCDHAS pipeline processing is applied.
 
 pairwise_sub_red - the pairwise subtracted 54 pairs from the NCDHAS-processed ALONG (A5) data with default parameters
-pairwise_sub_red_additional_sub - the pairwise subtracted 54 pairs from the NCDHAS-processed A3 data with default parameters
 
 pairwise_sub_red_no_side_refcor - the pairwise subtracted 54 pairs from NCDHAS-processed ALONG (A5) data but with side reference pixels subtraction fully turned off. See directory "proc2" as well.
 
-pairwise_sub_red_additional_sub - the pairwise subtracted 54 pairs from NCDHAS-processed ALONG (A5) data with an extra median subtraction along each row only
+old_1_over_f_after_pairwise_sub/pairwise_sub_red_additional_sub - the pairwise subtracted 54 pairs from NCDHAS-processed ALONG (A5) data with an extra median subtraction along each row only
 pairwise_sub_red_rowcol_sub - the pairwise subtracted 54 pairs from NCDHAS-processed ALONG (A5) data with an extra median subtraction along each row and column
 
 proc - the NCDHAS output from processing the raw ALONG (A5) and raw A3 dark exposures with default NCDHAS parameters.
 proc2 - the NCDHAS output of ALONG (A5) data from processing the raw A5 dark exposure with side reference pixel subtraction fully turned off. (see "run_ncdhas.sh")
-
+proc_pairwise_sub_red_additional_rowSub - the same as proc but with the median of each row in each read subtracted from that row. This should be better than subtracting after the fact
 
 Scripts
 sub_pairwise.py - takes a 108 frame dark frame and creates read pairs

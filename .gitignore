@@ -1,3 +1,6 @@
 *~
 *.DS_Store
 pairwise_sub/
+nohup.out
+pairwise_sub*
+proc*
