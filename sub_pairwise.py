@@ -22,6 +22,10 @@ if len(argv) >= 2:
         print("Making subtractive pairs from reduced median row-subtracted data...")
         fullDir = 'proc_pairwise_sub_red_additional_rowSub/NRCNRCA3-DARK-72552035481_1_483_SE_2017-09-12T23h40m37.red_rowSub.fits'
         pairWiseDir = 'pairwise_sub_red_rowSub'
+    elif argv[1] == 'redRowColSubThenPairwise':
+        print("Making subtractive pairs from reduced median row-subtracted and column-subracted data...")
+        fullDir = 'proc_pairwise_sub_red_additional_rowcol_sub/NRCNRCA3-DARK-72552035481_1_483_SE_2017-09-12T23h40m37.red_rowColSub.fits'
+        pairWiseDir = 'pairwise_sub_red_rowColSub'
     else:
         print("Unrecognized argument. Returing ... ")
         sys.exit()
