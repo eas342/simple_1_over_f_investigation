@@ -4,6 +4,7 @@ import numpy as np
 import pdb
 import sys
 from sys import argv
+from copy import deepcopy
 
 if len(argv) >= 2:
     if argv[1] == 'A3':
