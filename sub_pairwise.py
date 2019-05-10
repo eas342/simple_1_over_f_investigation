@@ -34,6 +34,10 @@ if len(argv) >= 2:
         print("Making subtractive pairs from reduced median row-subtracted and column-subracted data...")
         fullDir = 'proc_red_additional_rowcol_sub/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_rowColSub.fits'
         pairWiseDir = 'pairwise_sub_red_rowColSub'
+    elif argv[1] == 'smoothedRowKernel':
+        print("Making subtractive pairs from reduced data that has been subtracted by a row-kernel...")
+        fullDir = 'proc_red_smoothedRowKernel/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_smoothedRowKernel.fits'
+        pairWiseDir = 'pairwise_sub_red_smoothedRowKernel'
     else:
         print("Unrecognized argument. Returing ... ")
         sys.exit()

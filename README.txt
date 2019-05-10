@@ -17,8 +17,9 @@ pairwise_sub - the pairwise subtracted 54 pairs from the raw ALONG (A5) data. No
 pairwise_sub_A3 - the pairwise subtracted 54 frames from the raw A3 data. No reference pixel or other NCDHAS pipeline processing is applied.
 pairwise_sub_red - the pairwise subtracted 54 pairs from the NCDHAS-processed ALONG (A5) data with default parameters
 pairwise_sub_red_no_side_refcor - the pairwise subtracted 54 pairs from NCDHAS-processed ALONG (A5) data but with side reference pixels subtraction fully turned off. See directory "proc2" as well.
-pairwise_sub_red_rowSub - the pairwise subtracted 54 pairs from the raw ALONG (A5) data. The pairs were made from a red file where each group had a row-by-row median subtraction.
-pairwise_sub_red_rowColSub - the pairwise subtracted 54 pairs from the raw ALONG (A5) data. The pairs were made from a red file where each group had a row-by-row and column-by-column median subtraction.
+pairwise_sub_red_rowSub - the pairwise subtracted 54 pairs from reduced ALONG (A5) data. The pairs were made from a red file where each group had a row-by-row median subtraction after reduction by ncdhas.
+pairwise_sub_red_rowColSub - the pairwise subtracted 54 pairs from the reduced ALONG (A5) data. The pairs were made from a red file where each group had a row-by-row and column-by-column median subtraction after reduction by ncdhas.
+pairwise_sub_red_smoothedRowKernel - pairwise subtracted 54 pairs from the reduced ALONG (A5) data. The pairs were made from a red file where each group had a subtraction from a smoothed image where the smoothing was a 40 pix moving average kernel along the row direction.
 
 ## Old pairwise files:
 old_1_over_f_after_pairwise_sub/pairwise_sub_red_additional_sub - the pairwise subtracted 54 pairs from NCDHAS-processed ALONG (A5) data with an extra median subtraction along each row only. The row-by-row subtraction is done on the slope image instead of the red image.
@@ -29,6 +30,7 @@ proc - the NCDHAS output from processing the raw ALONG (A5) and raw A3 dark expo
 proc2 - the NCDHAS output of ALONG (A5) data from processing the raw A5 dark exposure with side reference pixel subtraction fully turned off. (see "run_ncdhas.sh")
 proc_red_additional_rowSub - the same as proc but with the median of each row in each read subtracted from that row. This should be better than subtracting after the fact
 proc_red_additional_rowcol_sub - the same as proc but with the median of each row and median of each column subtracted for each group/read.
+proc_red_smoothedRowKernel - the same as proc, but each group is subtracted by a smoothing kernel applied along the rows
 
 ## Scripts:
 sub_pairwise.py - takes a 108 frame dark frame and creates read pairs

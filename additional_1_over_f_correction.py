@@ -6,6 +6,7 @@ import sys
 from sys import argv
 import glob
 from copy import deepcopy
+from scipy import ndimage
 
 #redFile = 'proc/NRCNRCA3-DARK-72552035481_1_483_SE_2017-09-12T23h40m37.red.fits'
 redFile = 'proc/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red.fits'
@@ -16,8 +17,11 @@ if len(argv) > 1:
     if argv[1] == 'rowColSub':
         outDir = 'proc_red_additional_rowcol_sub'
         correctionMode = 'rowColSub'
-    elif argv[1] == 'smoothingRowKernel':
-        outDir = 'proc_red_smoothing_RowKernel'
+    elif argv[1] == 'smoothedRowKernel':
+        windowSize = 40
+        outDir = 'proc_red_smoothedRowKernel'
+        correctionMode = 'smoothedRowKernel'
+        kernel = np.ones([1,windowSize])/np.float(windowSize)
     else:
         print("unrecognized correction type")
         sys.exit()
@@ -46,8 +50,14 @@ for ind,oneGroup in enumerate(origDat):
         medianOfEachColumn = np.median(dat,axis=0)
         correction2D_col = np.tile(medianOfEachColumn,[head['NAXIS1'],1])
         correctedDat = dat - correction2D - correction2D_col
-    else:
+    elif correctionMode == 'smoothedRowKernel':
+        smoothedImage = ndimage.convolve(dat,kernel)
+        correctedDat = dat - smoothedImage
+    elif correctionMode == 'rowSub':
         correctedDat = dat - correction2D
+    else:
+        print("unrecognized correction mode")
+        sys.exit()
     
     newDat[ind] = correctedDat
 
