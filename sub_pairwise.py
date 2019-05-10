@@ -18,13 +18,21 @@ if len(argv) >= 2:
         print("Making subtractive pairs from reduced data...")
         fullDir = '/data1/tso_analysis/otis_long_dark/proc/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red.fits'
         pairWiseDir = 'pairwise_sub_red'
+    elif argv[1] == 'redSubThenPairwiseA3':
+        print("Making subtractive pairs from reduced median row-subtracted data...")
+        fullDir = 'proc_red_additional_rowSub/NRCNRCA3-DARK-72552035481_1_483_SE_2017-09-12T23h40m37.red_rowSub.fits'
+        pairWiseDir = 'pairwise_sub_red_rowSubA3'
+    elif argv[1] == 'redRowColSubThenPairwiseA3':
+        print("Making subtractive pairs from reduced median row-subtracted and column-subracted data...")
+        fullDir = 'proc_red_additional_rowcol_sub/NRCNRCA3-DARK-72552035481_1_483_SE_2017-09-12T23h40m37.red_rowColSub.fits'
+        pairWiseDir = 'pairwise_sub_red_rowColSubA3'
     elif argv[1] == 'redSubThenPairwise':
         print("Making subtractive pairs from reduced median row-subtracted data...")
-        fullDir = 'proc_pairwise_sub_red_additional_rowSub/NRCNRCA3-DARK-72552035481_1_483_SE_2017-09-12T23h40m37.red_rowSub.fits'
+        fullDir = 'proc_red_additional_rowSub/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_rowSub.fits'
         pairWiseDir = 'pairwise_sub_red_rowSub'
     elif argv[1] == 'redRowColSubThenPairwise':
         print("Making subtractive pairs from reduced median row-subtracted and column-subracted data...")
-        fullDir = 'proc_pairwise_sub_red_additional_rowcol_sub/NRCNRCA3-DARK-72552035481_1_483_SE_2017-09-12T23h40m37.red_rowColSub.fits'
+        fullDir = 'proc_red_additional_rowcol_sub/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_rowColSub.fits'
         pairWiseDir = 'pairwise_sub_red_rowColSub'
     else:
         print("Unrecognized argument. Returing ... ")

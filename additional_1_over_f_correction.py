@@ -14,13 +14,15 @@ overWrite = True
 
 if len(argv) > 1:
     if argv[1] == 'rowColSub':
-        outDir = 'proc_pairwise_sub_red_additional_rowcol_sub'
+        outDir = 'proc_red_additional_rowcol_sub'
         correctionMode = 'rowColSub'
+    elif argv[1] == 'smoothingRowKernel':
+        outDir = 'proc_red_smoothing_RowKernel'
     else:
         print("unrecognized correction type")
         sys.exit()
 else:
-    outDir = 'proc_pairwise_sub_red_additional_rowSub'
+    outDir = 'proc_red_additional_rowSub'
     correctionMode = 'rowSub'
 
 if os.path.exists(outDir) == False:

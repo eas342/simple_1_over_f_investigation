@@ -27,8 +27,8 @@ old_1_over_f_after_pairwise_sub/pairwise_sub_red_rowcol_sub - the pairwise subtr
 ## Proc Red files:
 proc - the NCDHAS output from processing the raw ALONG (A5) and raw A3 dark exposures with default NCDHAS parameters.
 proc2 - the NCDHAS output of ALONG (A5) data from processing the raw A5 dark exposure with side reference pixel subtraction fully turned off. (see "run_ncdhas.sh")
-proc_pairwise_sub_red_additional_rowSub - the same as proc but with the median of each row in each read subtracted from that row. This should be better than subtracting after the fact
-proc_pairwise_sub_red_additional_rowcol_sub - the same as proc but with the median of each row and median of each column subtracted for each group/read.
+proc_red_additional_rowSub - the same as proc but with the median of each row in each read subtracted from that row. This should be better than subtracting after the fact
+proc_red_additional_rowcol_sub - the same as proc but with the median of each row and median of each column subtracted for each group/read.
 
 ## Scripts:
 sub_pairwise.py - takes a 108 frame dark frame and creates read pairs
