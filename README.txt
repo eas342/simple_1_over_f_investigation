@@ -20,8 +20,9 @@ pairwise_sub_red_no_side_refcor - the pairwise subtracted 54 pairs from NCDHAS-p
 pairwise_sub_red_rowSub - the pairwise subtracted 54 pairs from reduced ALONG (A5) data. The pairs were made from a red file where each group had a row-by-row median subtraction after reduction by ncdhas.
 pairwise_sub_red_rowColSub - the pairwise subtracted 54 pairs from the reduced ALONG (A5) data. The pairs were made from a red file where each group had a row-by-row and column-by-column median subtraction after reduction by ncdhas.
 pairwise_sub_red_smoothedRowKernel - pairwise subtracted 54 pairs from the reduced ALONG (A5) data. The pairs were made from a red file where each group had a subtraction from a smoothed image where the smoothing was a 40 pix moving average kernel along the row direction.
-grp_split_red_file - directory where the processed red file is split into one file per group
-grp_split_red_smoothed_RowKernel_file - directory where a red file is spit into one file per group. Here the processed red file is one where each group is subtracted by smoothing kernel along the rows.
+grp_split_red_file - directory where the processed ALONG red file is split into one file per group
+grp_split_red_A3 - directory where the processed A3 red file is spit into one file per group
+grp_split_red_smoothed_RowKernel_file - directory where a ALONG red file is spit into one file per group. Here the processed red file is one where each group is subtracted by smoothing kernel along the rows.
 
 ## Old pairwise files:
 old_1_over_f_after_pairwise_sub/pairwise_sub_red_additional_sub - the pairwise subtracted 54 pairs from NCDHAS-processed ALONG (A5) data with an extra median subtraction along each row only. The row-by-row subtraction is done on the slope image instead of the red image.
