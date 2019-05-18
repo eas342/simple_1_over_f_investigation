@@ -38,6 +38,10 @@ if len(argv) >= 2:
         print("Making subtractive pairs from reduced data that has been subtracted by a row-kernel...")
         fullDir = 'proc_red_smoothedRowKernel/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_smoothedRowKernel.fits'
         pairWiseDir = 'pairwise_sub_red_smoothedRowKernel'
+    elif argv[1] == 'refAmpFlip0':
+        print("Making subtractive pairs from reduced data that has been subtracted by a reference amplifier...")
+        fullDir = 'proc_red_refAmpFlip0/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_refAmpFlip0.fits'
+        pairWiseDir = 'pairwise_sub_red_refAmpFlip0'
     else:
         print("Unrecognized argument. Returing ... ")
         sys.exit()
