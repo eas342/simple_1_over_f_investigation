@@ -34,6 +34,8 @@ proc2 - the NCDHAS output of ALONG (A5) data from processing the raw A5 dark exp
 proc_red_additional_rowSub - the same as proc but with the median of each row in each read subtracted from that row. This should be better than subtracting after the fact
 proc_red_additional_rowcol_sub - the same as proc but with the median of each row and median of each column subtracted for each group/read.
 proc_red_smoothedRowKernel - the same as proc, but each group is subtracted by a smoothing kernel applied along the rows
+proc_red_refAmpFlip0 - uses one reference amplifier (the first) that is copied and flipped over the image to subtract other amplifiers.
+proc_red_pcaEach - uses PCA with 10 principal components on each image. The first 10 components are mulitplied by their eigenvectors to create an model for each group. Each image will hav its own principal component vectors.
 
 ## Scripts:
 sub_pairwise.py - takes a 108 frame dark frame and creates read pairs

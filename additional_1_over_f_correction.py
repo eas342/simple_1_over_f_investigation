@@ -7,6 +7,9 @@ from sys import argv
 import glob
 from copy import deepcopy
 from scipy import ndimage
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from copy import deepcopy
 
 """
 Command line script to apply different forms of 1/f corrections to data
@@ -16,6 +19,7 @@ Usage
 python additional_1_over_f_correction.py Method
 where Method is 'rowColSub', 'smoothedRowKernel'
 refAmpFlip# where # is 0 through 3.
+'pcaEach' - New PCA on each image
 If Method is not specified, it does rowSub or 'row-by-row subtraction'
 """
 
@@ -36,6 +40,9 @@ if len(argv) > 1:
     elif 'refAmpFlip' in argv[1]:
         outDir = 'proc_red_{}'.format(argv[1])
         correctionMode = argv[1]
+    elif argv[1] == 'pcaEach':
+        outDir = 'proc_red_pcaEach'
+        correctionMode = 'pcaEach'
     else:
         print("unrecognized correction type")
         sys.exit()
@@ -69,6 +76,19 @@ for ind,oneGroup in enumerate(origDat):
         correctedDat = dat - smoothedImage
     elif correctionMode == 'rowSub':
         correctedDat = dat - correction2D
+    elif correctionMode == 'pcaEach':
+        badP = np.abs(dat) > 200.
+        cleanDat = deepcopy(dat)
+        cleanDat[badP] = 0
+        nComp = 10
+        scaler = StandardScaler(with_std=False,with_mean=True)
+        inputX = scaler.fit_transform(cleanDat)
+        pca = PCA(n_components=nComp)
+        principalComponents = pca.fit_transform(inputX)
+        modelPCA_unscaled = np.dot(principalComponents,pca.components_)
+        modelPCA_2D = scaler.inverse_transform(modelPCA_unscaled)
+        
+        correctedDat = dat - modelPCA_2D
     elif 'refAmpFlip' in correctionMode:
         try:
             refAmp = int(correctionMode[-1])
