@@ -40,9 +40,9 @@ if len(argv) > 1:
     elif 'refAmpFlip' in argv[1]:
         outDir = 'proc_red_{}'.format(argv[1])
         correctionMode = argv[1]
-    elif argv[1] == 'pcaEach':
-        outDir = 'proc_red_pcaEach'
-        correctionMode = 'pcaEach'
+    elif 'pcaEach' in argv[1]:
+        outDir = 'proc_red_{}'.format(argv[1])
+        correctionMode = argv[1]
     else:
         print("unrecognized correction type")
         sys.exit()
@@ -76,11 +76,14 @@ for ind,oneGroup in enumerate(origDat):
         correctedDat = dat - smoothedImage
     elif correctionMode == 'rowSub':
         correctedDat = dat - correction2D
-    elif correctionMode == 'pcaEach':
+    elif 'pcaEach' in correctionMode:
         badP = np.abs(dat) > 200.
         cleanDat = deepcopy(dat)
         cleanDat[badP] = 0
-        nComp = 10
+        if correctionMode == 'pcaEach':
+            nComp = 10
+        else:
+            nComp = int(correctionMode.split('pcaEach')[-1])
         scaler = StandardScaler(with_std=False,with_mean=True)
         inputX = scaler.fit_transform(cleanDat)
         pca = PCA(n_components=nComp)

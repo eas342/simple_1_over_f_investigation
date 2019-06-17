@@ -42,10 +42,10 @@ if len(argv) >= 2:
         print("Making subtractive pairs from reduced data that has been subtracted by a reference amplifier...")
         fullDir = 'proc_red_refAmpFlip0/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_refAmpFlip0.fits'
         pairWiseDir = 'pairwise_sub_red_refAmpFlip0'
-    elif argv[1] == 'pcaEach':
-        print("Making subtractive paris from reduced data that has been subtracted by a 10 PCA model individual to each image...")
-        fullDir = 'proc_red_pcaEach/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_pcaEach.fits'
-        pairWiseDir = 'pairwise_sub_pcaEach'
+    elif 'pcaEach' in argv[1]:
+        print("Making subtractive paris from reduced data that has been subtracted by a PCA model individual to each image...")
+        fullDir = 'proc_red_{}/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_{}.fits'.format(argv[1],argv[1])
+        pairWiseDir = 'pairwise_sub_{}'.format(argv[1])
     else:
         print("Unrecognized argument. Returing ... ")
         sys.exit()

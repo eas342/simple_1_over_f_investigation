@@ -20,6 +20,8 @@ pairwise_sub_red_no_side_refcor - the pairwise subtracted 54 pairs from NCDHAS-p
 pairwise_sub_red_rowSub - the pairwise subtracted 54 pairs from reduced ALONG (A5) data. The pairs were made from a red file where each group had a row-by-row median subtraction after reduction by ncdhas.
 pairwise_sub_red_rowColSub - the pairwise subtracted 54 pairs from the reduced ALONG (A5) data. The pairs were made from a red file where each group had a row-by-row and column-by-column median subtraction after reduction by ncdhas.
 pairwise_sub_red_smoothedRowKernel - pairwise subtracted 54 pairs from the reduced ALONG (A5) data. The pairs were made from a red file where each group had a subtraction from a smoothed image where the smoothing was a 40 pix moving average kernel along the row direction.
+pairwise_sub_pcaEach - pairwise from proc_red_pcaEach
+pairwise_sub_pcaEach20 - pairwise from proc_red_pcaEach20
 grp_split_red_file - directory where the processed ALONG red file is split into one file per group
 grp_split_red_A3 - directory where the processed A3 red file is spit into one file per group
 grp_split_red_smoothed_RowKernel_file - directory where a ALONG red file is spit into one file per group. Here the processed red file is one where each group is subtracted by smoothing kernel along the rows.
@@ -36,6 +38,8 @@ proc_red_additional_rowcol_sub - the same as proc but with the median of each ro
 proc_red_smoothedRowKernel - the same as proc, but each group is subtracted by a smoothing kernel applied along the rows
 proc_red_refAmpFlip0 - uses one reference amplifier (the first) that is copied and flipped over the image to subtract other amplifiers.
 proc_red_pcaEach - uses PCA with 10 principal components on each image. The first 10 components are mulitplied by their eigenvectors to create an model for each group. Each image will hav its own principal component vectors.
+proc_red_pcaEach20 - same as proc_red_pcaEach but with 20 principal components.
+
 
 ## Scripts:
 sub_pairwise.py - takes a 108 frame dark frame and creates read pairs
