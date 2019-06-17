@@ -43,9 +43,13 @@ if len(argv) >= 2:
         fullDir = 'proc_red_refAmpFlip0/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_refAmpFlip0.fits'
         pairWiseDir = 'pairwise_sub_red_refAmpFlip0'
     elif 'pcaEach' in argv[1]:
-        print("Making subtractive paris from reduced data that has been subtracted by a PCA model individual to each image...")
+        print("Making subtractive pairs from reduced data that has been subtracted by a PCA model individual to each image...")
         fullDir = 'proc_red_{}/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_{}.fits'.format(argv[1],argv[1])
         pairWiseDir = 'pairwise_sub_{}'.format(argv[1])
+    elif 'rowKernelInterp' in argv[1]:
+        print("Making subtractive pairs from reduced data that has been subtracted by a smoothed row model with interpolation...")
+        fullDir = 'proc_red_{}/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_{}.fits'.format(argv[1],argv[1])
+        pairWiseDir = 'pairwise_sub_red_{}'.format(argv[1])
     else:
         print("Unrecognized argument. Returing ... ")
         sys.exit()
