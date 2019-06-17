@@ -10,6 +10,7 @@ from scipy import ndimage
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from copy import deepcopy
+from astropy.convolution import convolve as astropyConvolve
 
 """
 Command line script to apply different forms of 1/f corrections to data
@@ -43,6 +44,30 @@ if len(argv) > 1:
     elif 'pcaEach' in argv[1]:
         outDir = 'proc_red_{}'.format(argv[1])
         correctionMode = argv[1]
+    elif 'rowKernelInterp' in argv[1]:
+        windowSize = 161 # window for kernel bigger than source ap
+        outDir = 'proc_red_rowKernelInterp'
+        correctionMode = argv[1]
+        kernel = np.ones([1,windowSize])/np.float(windowSize)
+        
+        ### Make a mask for apertures and bad pixels
+        ## bad pixel file
+        headRed = fits.getheader(redFile)
+        if headRed['DETECTOR'] == 'NRCALONG':
+            bpmFile = '/usr/local/nircamsuite/cal/BPM/NRCA5_17158_BPM_ISIMCV3_2016-01-21.fits'
+        else:
+            raise Exception("No BPM for {}".format(headRed['DETECTOR']))
+        
+        bpm = fits.getdata(bpmFile)
+        mask = bpm > 0
+        
+        ## apertures
+        aps = [[  768, 540],[ 1280, 540],[  768, 1250]]
+        x, y = np.meshgrid(np.arange(bpm.shape[0]),np.arange(bpm.shape[0]))
+        for oneAp in  aps:
+            r = np.sqrt((x - oneAp[0])**2 + (y - oneAp[1])**2)
+            mask = mask | (r < 70)
+        
     else:
         print("unrecognized correction type")
         sys.exit()
@@ -73,6 +98,10 @@ for ind,oneGroup in enumerate(origDat):
         correctedDat = dat - correction2D - correction2D_col
     elif correctionMode == 'smoothedRowKernel':
         smoothedImage = ndimage.convolve(dat,kernel)
+        correctedDat = dat - smoothedImage
+    elif correctionMode == 'rowKernelInterp':
+        dat[mask] = np.nan
+        smoothedImage = astropyConvolve(dat,kernel)
         correctedDat = dat - smoothedImage
     elif correctionMode == 'rowSub':
         correctedDat = dat - correction2D
