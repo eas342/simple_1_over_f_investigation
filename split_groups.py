@@ -1,6 +1,6 @@
 from astropy.io import fits, ascii
-
 from astropy.io import ascii,fits
+from sys import argv
 import os
 import numpy as np
 import pdb
@@ -9,16 +9,27 @@ from sys import argv
 import glob
 from copy import deepcopy
 from scipy import ndimage
+import pdb
 
 #redFile = 'proc/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red.fits'
 #redFile = 'proc_red_smoothedRowKernel/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_smoothedRowKernel.fits'
 #redFile = 'proc/NRCNRCA3-DARK-72552035481_1_483_SE_2017-09-12T23h40m37.red.fits'
-redFile = 'proc_red_rowKernelInterp/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_rowKernelInterp.fits'
+if len(argv) > 1:
+    correctionMethod = argv[1]
+else:
+    correctionMethod = 'rowKernelInterp'
+    print("No test specified, assuming {}".format())
+
+redFile = ('proc_red_{}/'.format(correctionMethod) + 
+           'NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_{}.fits'.format(correctionMethod))
 
 #grpDir = 'grp_split_red_file'
 #grpDir = 'grp_split_red_smoothed_RowKernel_file'
 #grpDir = 'grp_split_red_A3'
-grpDir = 'grp_split_red_rowKernelInterp_file'
+grpDir = 'grp_split_red_{}_file'.format(correctionMethod)
+
+if os.path.exists(redFile) == False:
+    raise Exception("Could not find {}".format(redFile))
 
 overwrite= True
 
