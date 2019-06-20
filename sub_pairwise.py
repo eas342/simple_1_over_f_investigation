@@ -51,11 +51,15 @@ if len(argv) >= 2:
         fullDir = 'proc_red_{}/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_{}.fits'.format(argv[1],argv[1])
         pairWiseDir = 'pairwise_sub_red_{}'.format(argv[1])
     else:
-        print("Unrecognized argument. Returing ... ")
-        sys.exit()
+        print("Making subtractive pairs from {}...".format(argv[1]))
+        fullDir = 'proc_red_{}/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_{}.fits'.format(argv[1])
+        pairWiseDir = 'pairwise_sub_red_{}'.format(argv[1])
 else:
     fullDir = '/data1/External/OTIS_unzipped/NRCNRCALONG-DARK-7235074213_1_1_924_JW1_JLAB40_20170823T074323.606_20170823T080253.912/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.fits'
     pairWiseDir = 'pairwise_sub'
+
+if os.path.exists(fullDir) == False:
+    raise Exception("Couldn't find reduced file {}... ".format(fullDir))
 
 overWrite = True
 
