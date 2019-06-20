@@ -12,11 +12,13 @@ from scipy import ndimage
 
 #redFile = 'proc/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red.fits'
 #redFile = 'proc_red_smoothedRowKernel/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_smoothedRowKernel.fits'
-redFile = 'proc/NRCNRCA3-DARK-72552035481_1_483_SE_2017-09-12T23h40m37.red.fits'
+#redFile = 'proc/NRCNRCA3-DARK-72552035481_1_483_SE_2017-09-12T23h40m37.red.fits'
+redFile = 'proc_red_rowKernelInterp/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_rowKernelInterp.fits'
 
 #grpDir = 'grp_split_red_file'
 #grpDir = 'grp_split_red_smoothed_RowKernel_file'
-grpDir = 'grp_split_red_A3'
+#grpDir = 'grp_split_red_A3'
+grpDir = 'grp_split_red_rowKernelInterp_file'
 
 overwrite= True
 
