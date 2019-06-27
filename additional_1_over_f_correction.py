@@ -29,6 +29,16 @@ redFile = 'proc/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red.fi
 
 overWrite = True
 
+
+def do_pca_model(inputArr,nComp=5):
+    scaler = StandardScaler(with_std=False,with_mean=True)
+    inputX = scaler.fit_transform(np.array(inputArr,dtype=np.float))
+    pca = PCA(n_components=nComp)
+    principalComponents = pca.fit_transform(inputX)
+    modelPCA_unscaled = np.dot(principalComponents,pca.components_)
+    modelPCA_2D = scaler.inverse_transform(modelPCA_unscaled)
+    return modelPCA_2D
+
 if len(argv) > 1:
     if argv[1] == 'rowColSub':
         outDir = 'proc_red_additional_rowcol_sub'
@@ -41,7 +51,7 @@ if len(argv) > 1:
     elif 'refAmpFlip' in argv[1]:
         outDir = 'proc_red_{}'.format(argv[1])
         correctionMode = argv[1]
-    elif 'pcaEach' in argv[1]:
+    elif ('pcaEach' in argv[1]) | ('pcaInd' in argv[1]):
         outDir = 'proc_red_{}'.format(argv[1])
         correctionMode = argv[1]
     elif 'rowKernelInterp' in argv[1]:
@@ -100,25 +110,31 @@ for ind,oneGroup in enumerate(origDat):
         smoothedImage = ndimage.convolve(dat,kernel)
         correctedDat = dat - smoothedImage
     elif correctionMode == 'rowKernelInterp':
-        dat[mask] = np.nan
-        smoothedImage = astropyConvolve(dat,kernel)
+        smoothedImage = astropyConvolve(dat,kernel,mask=mask)
         correctedDat = dat - smoothedImage
     elif correctionMode == 'rowSub':
         correctedDat = dat - correction2D
-    elif 'pcaEach' in correctionMode:
+    elif ('pcaEach' in correctionMode) | ('pcaInd' in correctionMode):
         badP = np.abs(dat) > 200.
         cleanDat = deepcopy(dat)
         cleanDat[badP] = 0
         if correctionMode == 'pcaEach':
             nComp = 10
+        elif correctionMode == 'pcaInd':
+            nComp = 5
         else:
             nComp = int(correctionMode.split('pcaEach')[-1])
-        scaler = StandardScaler(with_std=False,with_mean=True)
-        inputX = scaler.fit_transform(cleanDat)
-        pca = PCA(n_components=nComp)
-        principalComponents = pca.fit_transform(inputX)
-        modelPCA_unscaled = np.dot(principalComponents,pca.components_)
-        modelPCA_2D = scaler.inverse_transform(modelPCA_unscaled)
+
+        if 'pcaEach' in correctionMode:
+            modelPCA_2D = do_pca_model(cleanDat,nComp=nComp)
+        elif 'pcaInd' in correctionMode:
+            modelPCA_2D = np.zeros_like(cleanDat)
+            for oneAmp in np.arange(4):
+                xStart, xEnd = int(oneAmp) * 512, (int(oneAmp) + 1) * 512
+                modelPCA_2D[:,xStart:xEnd] = do_pca_model(cleanDat[:,xStart:xEnd],nComp=nComp)
+        else:
+            Exception("PCA correction mode {} not understdood".format(correctionMode))
+            
         
         correctedDat = dat - modelPCA_2D
     elif 'refAmpFlip' in correctionMode:
