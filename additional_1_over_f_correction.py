@@ -39,6 +39,20 @@ def do_pca_model(inputArr,nComp=5):
     modelPCA_2D = scaler.inverse_transform(modelPCA_unscaled)
     return modelPCA_2D
 
+def clip_data(dat,threshold=200):
+    """
+    Sigma clip data to remove hot pixels
+    """
+    badP = np.abs(dat) > threshold
+    cleanDat = deepcopy(dat)
+    cleanDat[badP] = 0
+    return cleanDat
+
+def get_amplifierX(ampNum):
+    xStart = int(ampNum) * 512
+    xEnd = (int(ampNum) + 1) * 512
+    return xStart, xEnd
+
 if len(argv) > 1:
     if argv[1] == 'rowColSub':
         outDir = 'proc_red_additional_rowcol_sub'
@@ -115,9 +129,7 @@ for ind,oneGroup in enumerate(origDat):
     elif correctionMode == 'rowSub':
         correctedDat = dat - correction2D
     elif ('pcaEach' in correctionMode) | ('pcaInd' in correctionMode):
-        badP = np.abs(dat) > 200.
-        cleanDat = deepcopy(dat)
-        cleanDat[badP] = 0
+        clippedDat = clip_data(dat)
         if correctionMode == 'pcaEach':
             nComp = 10
         elif correctionMode == 'pcaInd':
@@ -130,13 +142,23 @@ for ind,oneGroup in enumerate(origDat):
         elif 'pcaInd' in correctionMode:
             modelPCA_2D = np.zeros_like(cleanDat)
             for oneAmp in np.arange(4):
-                xStart, xEnd = int(oneAmp) * 512, (int(oneAmp) + 1) * 512
+                xStart, xEnd = get_amplifierX(ampNum)
                 modelPCA_2D[:,xStart:xEnd] = do_pca_model(cleanDat[:,xStart:xEnd],nComp=nComp)
         else:
             Exception("PCA correction mode {} not understdood".format(correctionMode))
             
         
         correctedDat = dat - modelPCA_2D
+    elif 'eachAmpAvg' in correctionMode:
+        clippedDat = clip_data(dat)
+        model_eachAmpAvg = np.zero_like(dat)
+        for oneAmp in np.arange(4):
+            xStart, xEnd = get_amplifierX(oneAmp)
+            meanRow = np.mean(clippedDat[:,xStart:xEnd],axis=1)
+            meanSubtraction = np.tile(meanRow,[xEnd - xStart,1]).transpose()
+            model_eachAmpAvg[:,xStart:xEnd] = meanSubtraction
+        
+        correctedDat = dat - moel_eachAmpAvg
     elif 'refAmpFlip' in correctionMode:
         try:
             refAmp = int(correctionMode[-1])
