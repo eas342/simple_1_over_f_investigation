@@ -94,8 +94,9 @@ if len(argv) > 1:
             mask = mask | (r < 70)
         
     else:
-        print("unrecognized correction type")
-        sys.exit()
+        outDir = 'proc_red_{}'.format(argv[1])
+        correctionMode = argv[1]
+
 else:
     outDir = 'proc_red_additional_rowSub'
     correctionMode = 'rowSub'
@@ -152,14 +153,14 @@ for ind,oneGroup in enumerate(origDat):
         correctedDat = dat - modelPCA_2D
     elif 'eachAmpAvg' in correctionMode:
         clippedDat = clip_data(dat)
-        model_eachAmpAvg = np.zero_like(dat)
+        model_eachAmpAvg = np.zeros_like(dat)
         for oneAmp in np.arange(4):
             xStart, xEnd = get_amplifierX(oneAmp)
             meanRow = np.mean(clippedDat[:,xStart:xEnd],axis=1)
             meanSubtraction = np.tile(meanRow,[xEnd - xStart,1]).transpose()
             model_eachAmpAvg[:,xStart:xEnd] = meanSubtraction
         
-        correctedDat = dat - moel_eachAmpAvg
+        correctedDat = dat - model_eachAmpAvg
     elif 'refAmpFlip' in correctionMode:
         try:
             refAmp = int(correctionMode[-1])
