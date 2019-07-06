@@ -144,8 +144,8 @@ for ind,oneGroup in enumerate(origDat):
         elif 'pcaInd' in correctionMode:
             modelPCA_2D = np.zeros_like(clippedDat)
             for oneAmp in np.arange(4):
-                xStart, xEnd = get_amplifierX(ampNum)
-                modelPCA_2D[:,xStart:xEnd] = do_pca_model(cleanDat[:,xStart:xEnd],nComp=nComp)
+                xStart, xEnd = get_amplifierX(oneAmp)
+                modelPCA_2D[:,xStart:xEnd] = do_pca_model(clippedDat[:,xStart:xEnd],nComp=nComp)
         else:
             Exception("PCA correction mode {} not understdood".format(correctionMode))
             
