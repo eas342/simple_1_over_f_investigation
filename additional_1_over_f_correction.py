@@ -140,9 +140,9 @@ for ind,oneGroup in enumerate(origDat):
             nComp = int(correctionMode.split('pcaEach')[-1])
 
         if 'pcaEach' in correctionMode:
-            modelPCA_2D = do_pca_model(cleanDat,nComp=nComp)
+            modelPCA_2D = do_pca_model(clippedDat,nComp=nComp)
         elif 'pcaInd' in correctionMode:
-            modelPCA_2D = np.zeros_like(cleanDat)
+            modelPCA_2D = np.zeros_like(clippedDat)
             for oneAmp in np.arange(4):
                 xStart, xEnd = get_amplifierX(ampNum)
                 modelPCA_2D[:,xStart:xEnd] = do_pca_model(cleanDat[:,xStart:xEnd],nComp=nComp)
