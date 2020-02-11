@@ -41,6 +41,21 @@ def get_periodogram(t,amp=0,clip=80):
     psd = LombScargle(time[pts],y[pts]).power(frequency=freqGrid)
     return psd
 
+
+def sim_white_noise(sigma=5.36):
+    np.random.seed(0)
+    simDat = np.random.randn(2048,2048) * sigma
+    t = pixeltime.main.all_pixels_tser(simDat)
+    t['t (sec)'] = t['time'] * 1e-5
+    psd = get_periodogram(t)
+    
+    ## plot it
+    fig, ax = plt.subplots()
+    ax.loglog(freqGrid,psd)
+    fig.savefig('power_spectra/plots/white_noise.pdf')
+    plt.close(fig)
+    
+
 def example_psd():
     t = get_pixeltime_series()
     psd = get_periodogram(t)
