@@ -23,7 +23,7 @@ def add_source(inputDir='pairwise_sub_red',
             print("Working on {} of {}".format(ind+1,len(fileL)))
         HDUList = fits.open(oneFile)
         
-        HDUList[0].data = HDUList[0].data + sourceImg * frameTime * gain
+        HDUList[0].data = HDUList[0].data + sourceImg * frameTime / gain ## convert to ADU
         
         outFileName = os.path.basename(oneFile)
         outFilePath = os.path.join(outDir,outFileName)
