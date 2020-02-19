@@ -4,16 +4,20 @@ import glob
 import os
 from copy import deepcopy
 import pdb
+import os
 
 def add_source(inputDir='pairwise_sub_red',
-               sourceToAdd='slope_NRCALONG_FULL_F322W2_sim.fits'):
+               sourceToAdd='slope_NRCALONG_FULL_F322W2_sim.fits',custText=''):
     fileL = glob.glob(os.path.join(inputDir,'NRC*.fits'))
     
     sourceImgFile = os.path.join('sim_grism_slope',sourceToAdd)
     sourceImg = fits.getdata(sourceImgFile)
     sourceHdr = fits.getheader(sourceImgFile)
 
-    outDir = inputDir + "_grism"
+    outDir = inputDir + "_grism" + custText
+    if os.path.exists(outDir) == False:
+        os.mkdir(outDir)
+    
 
     frameTime = 10.73677
     gain = 1.8
