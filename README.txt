@@ -20,6 +20,7 @@ pairwise_sub_red_no_side_refcor - the pairwise subtracted 54 pairs from NCDHAS-p
 pairwise_sub_red_rowSub - the pairwise subtracted 54 pairs from reduced ALONG (A5) data. The pairs were made from a red file where each group had a row-by-row median subtraction after reduction by ncdhas.
 pairwise_sub_red_rowColSub - the pairwise subtracted 54 pairs from the reduced ALONG (A5) data. The pairs were made from a red file where each group had a row-by-row and column-by-column median subtraction after reduction by ncdhas.
 pairwise_sub_red_smoothedRowKernel - pairwise subtracted 54 pairs from the reduced ALONG (A5) data. The pairs were made from a red file where each group had a subtraction from a smoothed image where the smoothing was a 40 pix moving average kernel along the row direction.
+pairwise_sub_red_eachmpAvg - pairwise subtracted 54 pairs from the reduced ALONG (A5) data. The paris were made form red file where the data have been subtracted row-by-row in each amplifier of each read pair. This works pretty well in reducing the read noise and is simpler than other methods.
 pairwise_sub_pcaEach - pairwise from proc_red_pcaEach
 pairwise_sub_pcaEach20 - pairwise from proc_red_pcaEach20
 grp_split_red_file - directory where the processed ALONG red file is split into one file per group
