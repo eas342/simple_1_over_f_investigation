@@ -10,7 +10,7 @@ import os
 exampleFile = 'pairwise_sub_red_eachAmpAvg/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_eachAmpAvg_int_055_054.fits'
 
 def collect_darks(searchDir = 'pairwise_sub_red_eachAmpAvg',yStart=30,yEnd=35,xStart=4,xEnd=2044):
-    fileL = glob.glob(os.path.join(searchDir,'NRCN*.fits'))
+    fileL = np.sort(glob.glob(os.path.join(searchDir,'NRCN*.fits')))
     nFile = len(fileL)
     nY = yEnd - yStart
     nX = xEnd - xStart
@@ -56,11 +56,11 @@ def show_spatial_covariance(whiteNoise=False):
     
     show_cov_matrix(yStart=30,yEnd=32,nCols=2,dataKeep=dataKeep)
 
-def save_cov_matrix(searchDir = 'pairwise_sub_red'):
+def save_cov_matrix(searchDir = 'pairwise_sub_red',yStart=30):
     """ Save a typical covariance matrix for a 0.1 um wavelength bin """
     spatialAp = 14
     nCols = 100
-    dataKeep = collect_darks(yStart=30,yEnd=30 + spatialAp,searchDir=searchDir)
+    dataKeep = collect_darks(yStart=yStart,yEnd=yStart + spatialAp,searchDir=searchDir)
     cov_matrix = get_median_cov_matrix(dataKeep,nCols=nCols)
     
     ## get the original file list
@@ -73,7 +73,8 @@ def save_cov_matrix(searchDir = 'pairwise_sub_red'):
     primHDU.header['PROCTYPE'] = (searchDir, "Processing that was appled")
     primHDU.header['ORIGFILE'] = (orig_head['FILENAME'], 'Original filename')
     primHDU.header['OBS_ID'] = (orig_head['OBS_ID'], 'Observation ID')
-    primHDU.writeto('cov_matrices/read_noise_cov_matrix_spatial_spectral_{}.fits'.format(searchDir),overwrite=True)
+    outName = os.path.basename(searchDir)
+    primHDU.writeto('cov_matrices/read_noise_cov_matrix_spatial_spectral_{}.fits'.format(outName),overwrite=True)
     
 def save_cov_eachAmpAvg():
     save_cov_matrix(searchDir='pairwise_sub_red_eachAmpAvg')
