@@ -9,15 +9,21 @@ import os
 
 exampleFile = 'pairwise_sub_red_eachAmpAvg/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_eachAmpAvg_int_055_054.fits'
 
-def collect_darks(searchDir = 'pairwise_sub_red_eachAmpAvg',yStart=30,yEnd=35,xStart=4,xEnd=2044):
-    fileL = np.sort(glob.glob(os.path.join(searchDir,'NRCN*.fits')))
+def collect_darks(searchDir = 'pairwise_sub_red_eachAmpAvg',yStart=30,yEnd=35,xStart=4,xEnd=2044,
+                  wildCard='NRCN*.fits'):
+    fileL = np.sort(glob.glob(os.path.join(searchDir,wildCard)))
     nFile = len(fileL)
     nY = yEnd - yStart
     nX = xEnd - xStart
     dataKeep = np.zeros([nY,nX,nFile])
     for ind,oneFile in enumerate(fileL):
         dat = fits.getdata(oneFile)
-        dataKeep[:,:,ind] = dat[yStart:yEnd,xStart:xEnd]
+        if len(dat.shape):
+            ## for NCDHAS data cubes, grab the first plane for the slope
+            useDat = dat[0]
+        else:
+            useDat = dat
+        dataKeep[:,:,ind] = useDat[yStart:yEnd,xStart:xEnd]
     
     return dataKeep
 
@@ -56,16 +62,29 @@ def show_spatial_covariance(whiteNoise=False):
     
     show_cov_matrix(yStart=30,yEnd=32,nCols=2,dataKeep=dataKeep)
 
-def save_cov_matrix(searchDir = 'pairwise_sub_red',yStart=30):
+def save_cov_matrix(searchDir = 'pairwise_sub_red',yStart=30,outName=None,
+                    wildCard='NRCN*.fits',isSlope=False):
     """ Save a typical covariance matrix for a 0.1 um wavelength bin """
     spatialAp = 14
     nCols = 100
-    dataKeep = collect_darks(yStart=yStart,yEnd=yStart + spatialAp,searchDir=searchDir)
+    dataKeep = collect_darks(yStart=yStart,yEnd=yStart + spatialAp,searchDir=searchDir,
+                             wildCard=wildCard)
     cov_matrix = get_median_cov_matrix(dataKeep,nCols=nCols)
     
     ## get the original file list
-    fileL = glob.glob(os.path.join(searchDir,'NRCN*.fits'))
+    fileL = np.sort(glob.glob(os.path.join(searchDir,wildCard)))
     orig_head = fits.getheader(fileL[0])
+
+    if isSlope == True:
+        if ('EFFINTTM' in orig_head):
+            itime = orig_head['EFFINTTM']
+        elif 'ITIME' in orig_head:
+            itime = orig_head['ITIME']
+        else:
+            print("Couldn't find integration time. Setting to 1.")
+            itime = 1
+        cov_matrix = cov_matrix * itime**2
+    
 
     primHDU = fits.PrimaryHDU(cov_matrix)
     primHDU.header['NSPATIAL'] = (spatialAp, "number of pixels in the spatial direction (Y)")
@@ -73,7 +92,8 @@ def save_cov_matrix(searchDir = 'pairwise_sub_red',yStart=30):
     primHDU.header['PROCTYPE'] = (searchDir, "Processing that was appled")
     primHDU.header['ORIGFILE'] = (orig_head['FILENAME'], 'Original filename')
     primHDU.header['OBS_ID'] = (orig_head['OBS_ID'], 'Observation ID')
-    outName = os.path.basename(searchDir)
+    if outName == None:
+        outName = os.path.basename(searchDir)
     primHDU.writeto('cov_matrices/read_noise_cov_matrix_spatial_spectral_{}.fits'.format(outName),overwrite=True)
     
 def save_cov_eachAmpAvg():
@@ -81,3 +101,11 @@ def save_cov_eachAmpAvg():
 
 def save_cov_colRow():
     save_cov_matrix(searchDir='pairwise_sub_red_rowColSub')
+
+def save_cov_mirage_sim():
+    searchPath1 = '/surtrdata1/tso_analysis/sim_data/mirage_sim/nircam_011_proc/proc/raw_separated_MMM_refpix/'
+    searchPath2 = 'nircam_011_nircam_011_jw88888001001_01101_00002-seg00?_nrca5_uncal/'
+    searchDir = os.path.join(searchPath1,searchPath2)
+    
+    save_cov_matrix(searchDir=searchDir,yStart=83,outName='mirage_sim_001',wildCard='*.slp.fits',
+                    isSlope=True)
