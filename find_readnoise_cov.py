@@ -18,7 +18,7 @@ def collect_darks(searchDir = 'pairwise_sub_red_eachAmpAvg',yStart=30,yEnd=35,xS
     dataKeep = np.zeros([nY,nX,nFile])
     for ind,oneFile in enumerate(fileL):
         dat = fits.getdata(oneFile)
-        if len(dat.shape):
+        if len(dat.shape) == 3:
             ## for NCDHAS data cubes, grab the first plane for the slope
             useDat = dat[0]
         else:
@@ -63,7 +63,7 @@ def show_spatial_covariance(whiteNoise=False):
     show_cov_matrix(yStart=30,yEnd=32,nCols=2,dataKeep=dataKeep)
 
 def save_cov_matrix(searchDir = 'pairwise_sub_red',yStart=30,outName=None,
-                    wildCard='NRCN*.fits',isSlope=False):
+                    wildCard='NRCN*.fits',isSlope=False,gainDivide=False):
     """ Save a typical covariance matrix for a 0.1 um wavelength bin """
     spatialAp = 14
     nCols = 100
@@ -84,6 +84,8 @@ def save_cov_matrix(searchDir = 'pairwise_sub_red',yStart=30,outName=None,
             print("Couldn't find integration time. Setting to 1.")
             itime = 1
         cov_matrix = cov_matrix * itime**2
+    if gainDivide == True:
+        cov_matrix = cov_matrix / 1.8**2
     
 
     primHDU = fits.PrimaryHDU(cov_matrix)
@@ -109,3 +111,22 @@ def save_cov_mirage_sim():
     
     save_cov_matrix(searchDir=searchDir,yStart=83,outName='mirage_sim_001',wildCard='*.slp.fits',
                     isSlope=True)
+
+def save_cov_mirage_sim(backsub=True):
+    if backsub == True:
+        searchPath1 = '/surtrdata1/tso_analysis/sim_data/mirage_sim/nircam_011_proc/proc/raw_separated_MMM_refpix/'
+        searchPath2 = 'nircam_011_nircam_011_jw88888001001_01101_00002-seg001_nrca5_uncal/backsub_img'
+        outName = 'mirage_sim_001_backsub'
+        isSlope=False
+        gainDivide=True
+    else:
+        searchPath1 = '/surtrdata1/tso_analysis/sim_data/mirage_sim/nircam_011_proc/proc/raw_separated_MMM_refpix/'
+        searchPath2 = 'nircam_011_nircam_011_jw88888001001_01101_00002-seg00?_nrca5_uncal/'
+        outName = 'mirage_sim_001'
+        isSlope=True
+        gainDivide=False
+    
+    searchDir = os.path.join(searchPath1,searchPath2)
+    
+    save_cov_matrix(searchDir=searchDir,yStart=83,outName=outName,wildCard='*.slp.fits',
+                    isSlope=isSlope,gainDivide=gainDivide)
