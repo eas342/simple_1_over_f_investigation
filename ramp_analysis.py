@@ -2,7 +2,8 @@ import numpy as np
 from astropy.io import fits, ascii
 import matplotlib.pyplot as plt
 import pdb
-
+from scipy import stats
+import os
 
 HDUList, head, dat, testDat = None, None, None, None
 
@@ -20,37 +21,71 @@ def get_data(detector='A3'):
     
     head = HDUList[0].header
     dat = HDUList[0].data
-    testDat = dat[:,0:200,0:100]
+    testDat = dat[:,0:300,0:200]
 
 get_data()
 
-def find_rtn(testMode=True):
+def find_rtn(testMode=True,newAlgorithm=True):
     if testMode == True:
         useDat = testDat
     else:
         useDat = dat
     
-    diffDat = np.diff(useDat,axis=0)
-    diffDat = diffDat[1:] ## throw out the first diff, since it can be weird
-    medianDiff = np.median(diffDat,axis=0)
-    nPlanes = useDat.shape[0]
-    medianAbsDev = np.median(np.abs(useDat - np.median(useDat)))
-#    medianAbsDev = np.median(np.abs(useDat - np.tile(np.median(useDat,axis=0),[nPlanes,1,1])),axis=0)
     
-    ## Identify potential jumps from the deltas up the ramp
-    potJumps = (np.abs(diffDat) > 200.)
-    jumpMap = np.sum(potJumps,axis=0)
-#    jumpMaxSizesMap = np.max(np.abs(potJumps * diffDat),axis=0)
+    medianAbsDev = np.median(np.abs(useDat - np.median(useDat)))
 
-    ## Make sure jumps stand out from rest of ramp (unlike RC say)
- #   outlierJumps = np.greater(jumpMaxSizesMap,medianAbsDev * 20.)
 
+    if newAlgorithm == True:
+        ## round the data into bins slightly smaller than the stdev to find histogram peaks
+        roundedDat = np.array(np.round(useDat/3.) * 3,dtype=np.int)
+        ## find the median for each pixel
+        medianMap = np.median(useDat,axis=0)
+        
+        #scipy.statsmode is very slow for this big data set
+        #so cache the results
+        if testMode == True:
+            modeMap_name = 'mode_test_data.fits'
+        else:
+            modeMap_name = 'mode_{}'.format(head['FILENAME'])
+        modeMap_path = os.path.join('modes_and_histograms','mode_maps',modeMap_name)
+        
+        if (os.path.exists(modeMap_path) == False):
+            modeMap = stats.mode(roundedDat,axis=0,nan_policy='omit')
+            hduModeMap = fits.PrimaryHDU(modeMap)
+            hduModeMap.writeto(modeMap_path)
+        else:
+            modeMap = fits.getdata(modeMap_path)
+        
+        ## find points where mode and median are significantly differenty 
+        modeOffsets = np.abs(medianMap - modeMap[0][0]) > 10.
+        
+        jumpMap = modeOffsets
+        
+    else:
+        diffDat = np.diff(useDat,axis=0)
+        diffDat = diffDat[1:] ## throw out the first diff, since it can be weird
+        medianDiff = np.median(diffDat,axis=0)
+        nPlanes = useDat.shape[0]
+            #    medianAbsDev = np.median(np.abs(useDat - np.tile(np.median(useDat,axis=0),[nPlanes,1,1])),axis=0)
+        
+        ## Identify potential jumps from the deltas up the ramp
+        potJumps = (np.abs(diffDat) > 100)
+        jumpMap = np.sum(potJumps,axis=0)
+        #    jumpMaxSizesMap = np.max(np.abs(potJumps * diffDat),axis=0)
+        
+        ## Make sure jumps stand out from rest of ramp (unlike RC say)
+        #   outlierJumps = np.greater(jumpMaxSizesMap,medianAbsDev * 20.)
+        
     ## Make sure the pixel doesn't have significant RC at the beginning
     earlySlope = np.median(useDat[5:10,:,:],axis=0) - np.median(useDat[0:5,:,:],axis=0)
     lateSlope = np.median(useDat[-10:-5,:,:],axis=0) - np.median(useDat[-5:,:,:],axis=0)
-    normalSlopes = np.less(np.abs(lateSlope - earlySlope),20. * medianAbsDev)
+    linearSlopes = np.less(np.abs(lateSlope - earlySlope),20. * medianAbsDev)
+    overallSlopes = np.mean(useDat[-25:,:,:],axis=0) - np.mean(useDat[0:25,:,:],axis=0)
+    flatSlopes = np.less(overallSlopes,15)
+    normalSlopes = flatSlopes & linearSlopes
 
     ## Find the X & Y locations
+    ## look for multiple Jumps
     RTN = np.array(jumpMap & normalSlopes,dtype=np.uint8)
     
     whereJumps = np.where(RTN)
@@ -85,8 +120,15 @@ def save_map(thisMap,mapType='rtn'):
 
 def plot_ramps(yJumps,xJumps,plotType='rtn',startIndex=0,numRamps=10):
     fig, ax = plt.subplots()
-    for oneJump in np.arange(numRamps) + startIndex:
-        ax.plot(dat[:,yJumps[oneJump],xJumps[oneJump]])
+    for ind,oneJump in enumerate(np.arange(numRamps) + startIndex):
+        if plotType == 'rtn':
+            offset = ind + 50 * ind
+        else:
+            offset = 0
+        
+        ax.plot(dat[:,yJumps[oneJump],xJumps[oneJump]] - offset)
+        
+    
     ax.set_xlabel('Frame Number')
     ax.set_ylabel('$\Delta$ DN')
     fig.savefig('pixel_ramps/example_{}_{}.pdf'.format(plotType,head['DETECTOR']),
@@ -100,7 +142,7 @@ def do_all():
         for pixType in ['rtn','rc']:
             if pixType == 'rtn':
                 yPx, xPx, thisMap = find_rtn(testMode=False)
-                numRamps=10
+                numRamps=5
             else:
                 yPx, xPx, thisMap = find_rc(testMode=False)
                 numRamps=5
