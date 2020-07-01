@@ -25,7 +25,7 @@ def get_data(detector='A3'):
 
 get_data()
 
-def find_rtn(testMode=True,newAlgorithm=True):
+def find_rtn(testMode=True,algorithm='multi-jumps'):
     if testMode == True:
         useDat = testDat
     else:
@@ -35,7 +35,7 @@ def find_rtn(testMode=True,newAlgorithm=True):
     medianAbsDev = np.median(np.abs(useDat - np.median(useDat)))
 
 
-    if newAlgorithm == True:
+    if algorithm == 'mean-mode':
         ## round the data into bins slightly smaller than the stdev to find histogram peaks
         roundedDat = np.array(np.round(useDat/3.) * 3,dtype=np.int)
         ## find the median for each pixel
@@ -68,10 +68,17 @@ def find_rtn(testMode=True,newAlgorithm=True):
         nPlanes = useDat.shape[0]
             #    medianAbsDev = np.median(np.abs(useDat - np.tile(np.median(useDat,axis=0),[nPlanes,1,1])),axis=0)
         
-        ## Identify potential jumps from the deltas up the ramp
-        potJumps = (np.abs(diffDat) > 100)
-        jumpMap = np.sum(potJumps,axis=0)
+        if algorithm == 'big-jumps':
+            ## Identify potential jumps from the deltas up the ramp
+            potJumps = (np.abs(diffDat) > 100)
+            jumpMap = np.sum(potJumps,axis=0)
         #    jumpMaxSizesMap = np.max(np.abs(potJumps * diffDat),axis=0)
+        elif algorithm == 'multi-jumps':
+            potJumps = (np.abs(diffDat) > 40) & (np.abs(diffDat) < 200)
+            jumpCount = np.sum(potJumps,axis=0)
+            jumpMap = (jumpCount > 1) & (jumpCount < 4)
+        else:
+            raise Exception("Unrecognized RTN algorithm")
         
         ## Make sure jumps stand out from rest of ramp (unlike RC say)
         #   outlierJumps = np.greater(jumpMaxSizesMap,medianAbsDev * 20.)
@@ -147,6 +154,7 @@ def do_all():
                 yPx, xPx, thisMap = find_rc(testMode=False)
                 numRamps=5
             
+            print("Found {} {} pixels".format(len(yPx),pixType))
             plot_ramps(yPx,xPx,plotType=pixType,numRamps=numRamps)
             save_map(thisMap,mapType=pixType)
     
