@@ -25,7 +25,7 @@ def get_data(detector='A3'):
 
 get_data()
 
-def find_rtn(testMode=True,algorithm='multi-jumps'):
+def find_rtn(testMode=True,algorithm='eliminate-others'):
     if testMode == True:
         useDat = testDat
     else:
@@ -35,7 +35,39 @@ def find_rtn(testMode=True,algorithm='multi-jumps'):
     medianAbsDev = np.median(np.abs(useDat - np.median(useDat)))
 
 
-    if algorithm == 'mean-mode':
+    
+    if algorithm == 'eliminate-others':
+        std2D = np.std(useDat,axis=0)
+        
+        outlierPix = std2D > 20 # study the tail of the distribution
+        
+        ## find the RC pixels
+        earlySlope = np.median(useDat[5:10,:,:],axis=0) - np.median(useDat[0:5,:,:],axis=0)
+        lateSlope = np.median(useDat[-10:-5,:,:],axis=0) - np.median(useDat[-5:,:,:],axis=0)
+        firstSlope = useDat[1,:,:] - useDat[0,:,:]
+        nonLinear = np.greater(np.abs(lateSlope - earlySlope),20. * medianAbsDev)
+        ## also need a slope at the beginning
+        nonLinearFirst = np.greater(np.abs(lateSlope - firstSlope),20. * medianAbsDev)
+        rcMap = (nonLinear | nonLinearFirst) & outlierPix
+        
+        ## Find the hot pixels
+        diffData = np.diff(useDat,axis=0)
+        nonDark = np.mean(diffData,axis=0) > 0.5
+        
+        bigDiff = (diffData > 90)## also check for big jumps
+        numBigDiff = np.sum(bigDiff,axis=0)
+        hotMap = outlierPix & nonDark & (rcMap == False) & (numBigDiff != 1)
+        
+        ### Identifying cosmic rays
+        crMap = (numBigDiff==1) & outlierPix & (rcMap == False) & (hotMap == False)
+        
+        ### Keep the remaining pixels
+        jumpMap = (rcMap == False) & outlierPix & (hotMap == False) & (crMap == False)
+        
+        ## Don't try removing more pixels since we already got rid of RC, hot, etc.
+        removeExtras = False
+    
+    elif algorithm == 'mean-mode':
         ## round the data into bins slightly smaller than the stdev to find histogram peaks
         roundedDat = np.array(np.round(useDat/3.) * 3,dtype=np.int)
         ## find the median for each pixel
@@ -61,6 +93,7 @@ def find_rtn(testMode=True,algorithm='multi-jumps'):
         
         jumpMap = modeOffsets
         
+        removeExtras = True
     else:
         diffDat = np.diff(useDat,axis=0)
         diffDat = diffDat[1:] ## throw out the first diff, since it can be weird
@@ -82,18 +115,22 @@ def find_rtn(testMode=True,algorithm='multi-jumps'):
         
         ## Make sure jumps stand out from rest of ramp (unlike RC say)
         #   outlierJumps = np.greater(jumpMaxSizesMap,medianAbsDev * 20.)
-        
-    ## Make sure the pixel doesn't have significant RC at the beginning
-    earlySlope = np.median(useDat[5:10,:,:],axis=0) - np.median(useDat[0:5,:,:],axis=0)
-    lateSlope = np.median(useDat[-10:-5,:,:],axis=0) - np.median(useDat[-5:,:,:],axis=0)
-    linearSlopes = np.less(np.abs(lateSlope - earlySlope),20. * medianAbsDev)
-    overallSlopes = np.mean(useDat[-25:,:,:],axis=0) - np.mean(useDat[0:25,:,:],axis=0)
-    flatSlopes = np.less(overallSlopes,15)
-    normalSlopes = flatSlopes & linearSlopes
-
-    ## Find the X & Y locations
-    ## look for multiple Jumps
-    RTN = np.array(jumpMap & normalSlopes,dtype=np.uint8)
+        removeExtras = True
+    
+    if removeExtras == True:
+        ## Make sure the pixel doesn't have significant RC at the beginning
+        earlySlope = np.median(useDat[5:10,:,:],axis=0) - np.median(useDat[0:5,:,:],axis=0)
+        lateSlope = np.median(useDat[-10:-5,:,:],axis=0) - np.median(useDat[-5:,:,:],axis=0)
+        linearSlopes = np.less(np.abs(lateSlope - earlySlope),20. * medianAbsDev)
+        overallSlopes = np.mean(useDat[-25:,:,:],axis=0) - np.mean(useDat[0:25,:,:],axis=0)
+        flatSlopes = np.less(overallSlopes,15)
+        normalSlopes = flatSlopes & linearSlopes
+    
+        ## Find the X & Y locations
+        ## look for multiple Jumps
+        RTN = np.array(jumpMap & normalSlopes,dtype=np.uint8)
+    else:
+        RTN = jumpMap
     
     whereJumps = np.where(RTN)
     yJumps, xJumps = whereJumps[0], whereJumps[1]
