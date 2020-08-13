@@ -7,18 +7,21 @@ import os
 
 HDUList, head, dat, testDat = None, None, None, None
 
-def get_data(detector='A3'):
+def get_data(detector='A3',manualPath=None):
     global HDUList
     global head
     global dat
     global testDat
-    if detector == 'A3':
-        HDUList = fits.open('proc_red_extra_bias_sub/NRCNRCA3-DARK-72552035481_1_483_SE_2017-09-12T23h40m37.red_extra_bias_sub.fits')
-    elif detector == 'ALONG':
-        HDUList = fits.open('proc_red_extra_bias_sub/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_extra_bias_sub.fits')
+    if manualPath is None:
+        if detector == 'A3':
+            HDUList = fits.open('proc_red_extra_bias_sub/NRCNRCA3-DARK-72552035481_1_483_SE_2017-09-12T23h40m37.red_extra_bias_sub.fits')
+        elif detector == 'ALONG':
+            HDUList = fits.open('proc_red_extra_bias_sub/NRCNRCALONG-DARK-72350742131_1_485_SE_2017-08-23T16h49m51.red_extra_bias_sub.fits')
+        else:
+            raise Exception("No red file for detector {}".format(detector))
     else:
-        raise Exception("No red file for detector {}".format(detector))
-    
+        HDUList = fits.open(manualPath)
+
     head = HDUList[0].header
     dat = HDUList[0].data
     testDat = dat[:,0:300,0:200]
@@ -162,7 +165,8 @@ def save_map(thisMap,mapType='rtn'):
     primHDU.writeto('maps/{}_map_{}.fits'.format(mapType,head['DETECTOR']),
                     overwrite=True)
 
-def plot_ramps(yJumps,xJumps,plotType='rtn',startIndex=0,numRamps=10):
+def plot_ramps(yJumps,xJumps,plotType='rtn',startIndex=0,numRamps=10,
+               customName=None,medianSub=False):
     fig, ax = plt.subplots()
     for ind,oneJump in enumerate(np.arange(numRamps) + startIndex):
         if plotType == 'rtn':
@@ -170,14 +174,46 @@ def plot_ramps(yJumps,xJumps,plotType='rtn',startIndex=0,numRamps=10):
         else:
             offset = 0
         
-        ax.plot(dat[:,yJumps[oneJump],xJumps[oneJump]] - offset)
+        plotY = dat[:,yJumps[oneJump],xJumps[oneJump]]
+        if medianSub == True:
+            plotY = plotY - np.median(plotY)
         
+        ax.plot(plotY - offset)
+        
+    if customName is None:
+        datDescription = head['DETECTOR']
+    else:
+        datDescription = customName
     
     ax.set_xlabel('Frame Number')
     ax.set_ylabel('$\Delta$ DN')
-    fig.savefig('pixel_ramps/example_{}_{}.pdf'.format(plotType,head['DETECTOR']),
+    fig.savefig('pixel_ramps/example_{}_{}.pdf'.format(plotType,datDescription),
                 bbox_inches='tight')
     plt.close(fig)
+
+
+def check_px_repeatability(detector='NRCALONG',mapType='rtn'):
+    mapPath = 'maps/{}_map_{}.fits'.format(mapType,detector)
+    pixMap = fits.getdata(mapPath)
+    wherePix = np.where(pixMap)
+    y, x = wherePix[0], wherePix[1]
+    cv3Loc = '/surtrdata/External/ISIMCV3_unzipped/'
+    #obsDir = 'NRCNRCALONG-DARK-5351101020_1_1_31919_JW1_JLAB88_20151217T101134.135_20151217T103104.441'
+    #fName = 'NRCNRCALONG-DARK-53511010201_1_485_SE_2015-12-17T11h05m42.fits'
+    #obsDir = 'NRCNRCALONG-DARK-5351091743_1_1_31895_JW1_JLAB88_20151217T091857.526_20151217T093827.832'
+    #fName = 'NRCNRCALONG-DARK-53510917431_1_485_SE_2015-12-17T10h15m23.fits'
+    #fullPath = os.path.join(cv3Loc,obsDir,fName)
+
+    
+    obsDir = 'other_ramps/NRCNRCALONG-DARK-5351091743'
+    fName = 'NRCNRCALONG-DARK-53510917431_1_485_SE_2015-12-17T10h15m23.red.fits'
+    fullPath = os.path.join(obsDir,fName)
+    
+    get_data(manualPath=fullPath)
+    
+    ## add a more descriptive name
+    customName = "{}_example_{}".format(detector,HDUList[0].header['OBS_ID'])
+    plot_ramps(y,x,plotType=mapType,customName=customName,medianSub=True)
 
     
 def do_all():
